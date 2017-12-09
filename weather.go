@@ -126,12 +126,16 @@ func NewClientWithContext(ctx context.Context, config Config) (*Client, error) {
 	}
 
 	token, err := oauth.PasswordCredentialsToken(ctx, config.Username, config.Password)
+	if err != nil {
+		return nil, err
+	}
 
-	return &Client{
+	client := &Client{
 		oauth:      oauth,
 		httpClient: oauth.Client(ctx, token),
 		Dc:         &DeviceCollection{},
-	}, err
+	}
+	return client, nil
 }
 
 // do a url encoded HTTP POST request
