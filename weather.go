@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
@@ -109,6 +110,11 @@ type DashboardData struct {
 
 // NewClient create a handle authentication to Netamo API
 func NewClient(config Config) (*Client, error) {
+	return NewClientWithContext(oauth2.NoContext, config)
+}
+
+// NewClientWithContext create a handle authentication to Netamo API
+func NewClientWithContext(ctx context.Context, config Config) (*Client, error) {
 	oauth := &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -119,11 +125,11 @@ func NewClient(config Config) (*Client, error) {
 		},
 	}
 
-	token, err := oauth.PasswordCredentialsToken(oauth2.NoContext, config.Username, config.Password)
+	token, err := oauth.PasswordCredentialsToken(ctx, config.Username, config.Password)
 
 	return &Client{
 		oauth:      oauth,
-		httpClient: oauth.Client(oauth2.NoContext, token),
+		httpClient: oauth.Client(ctx, token),
 		Dc:         &DeviceCollection{},
 	}, err
 }
